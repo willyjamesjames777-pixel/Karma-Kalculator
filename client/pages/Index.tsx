@@ -752,7 +752,10 @@ function ProfitCalculator() {
       </CardHeader>
       <CardContent>
         <div className="mb-3 text-xs text-muted-foreground">Live price from CoinGecko. Enter hashrates, network, rewards, power and costs; rows with Enabled=1 are ranked by daily profit.</div>
-        <div className="flex justify-end mb-3"><Button onClick={addRow}>Add Row</Button></div>
+        <div className="flex justify-end gap-2 mb-3">
+          <Button variant="outline" onClick={() => { localStorage.removeItem(CALC_LS); setRows([]); }}>Clear Calculator</Button>
+          <Button onClick={addRow}>Add Row</Button>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
