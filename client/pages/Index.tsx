@@ -275,6 +275,27 @@ export default function Index() {
       minedDate: newCoin.minedDate || undefined,
     };
     setCoins((prev) => [...prev, entry]);
+
+    // Also add a row to the profitability calculator
+    const calcRow: CalcRow = {
+      enabled: true,
+      coin: id,
+      coinId: id,
+      yourVal: Number(newCoin.hashValue) || 0,
+      yourUnit: newCoin.hashUnit,
+      powerWatts: 0,
+      elecPerKwh: 0.1,
+      netVal: Number(newCoin.netHashValue) || 0,
+      netUnit: newCoin.netHashUnit,
+      blockReward: 0,
+      blockTimeSec: 0,
+      poolFeePct: 0,
+      notes: newCoin.pool || "",
+    };
+    window.dispatchEvent(
+      new CustomEvent<CalcRow>("hashtrack-calc-add", { detail: calcRow }),
+    );
+
     setNewCoin({
       id: "",
       mpsSlug: "",
