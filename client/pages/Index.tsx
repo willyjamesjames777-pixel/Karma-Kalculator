@@ -43,6 +43,7 @@ interface TrackedCoin {
   pool?: string; // pool name or URL
   coinsMined?: number;
   minedDate?: string; // ISO date (yyyy-mm-dd)
+  netHashOverrideHps?: number; // manual override for network hashrate
 }
 
 const LS_KEY = "hashtrack.coins.v1";
