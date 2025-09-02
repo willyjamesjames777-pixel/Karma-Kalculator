@@ -207,9 +207,12 @@ export default function Index() {
             <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent">Mining Tracker</h1>
             <p className="text-sm text-muted-foreground mt-1">List new coins, compare your hashrate vs network/pool, and track live prices.</p>
           </div>
-          <Button variant="secondary" onClick={() => refetch()} disabled={isFetching} className="gap-2">
-            <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin")} /> Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => exportCsv(coins, marketsById)} className="gap-2">Download CSV</Button>
+            <Button variant="secondary" onClick={() => refetch()} disabled={isFetching} className="gap-2">
+              <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin")} /> Refresh
+            </Button>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 mt-8">
