@@ -39,11 +39,11 @@ export function HashrateEditor({ valueHps, onChangeHps }: { valueHps: number; on
         inputMode="decimal"
         type="number"
         min={0}
-        className="col-span-7 text-right"
+        className="col-span-8 text-right"
         value={Number.isFinite(displayValue) ? Number(displayValue) : 0}
         onChange={(e) => onChangeHps((Number(e.target.value) || 0) * UNIT_MULT[unit])}
       />
-      <div className="col-span-5">
+      <div className="col-span-4">
         <Select value={unit} onValueChange={(v) => setUnit(v as HashUnit)}>
           <SelectTrigger>
             <SelectValue placeholder="Unit" />
