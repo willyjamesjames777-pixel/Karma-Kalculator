@@ -377,12 +377,12 @@ function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; mark
           <div className="text-[11px] text-muted-foreground mt-1 truncate">Top pool: {pools[0]?.name || pools[0]?.url || "-"}</div>
         )}
       </TableCell>
-      <TableCell className="text-right w-[140px]">
+      <TableCell className="text-right min-w-[220px] w-[240px]">
         <Input
           inputMode="decimal"
           type="number"
           min={0}
-          className="text-right"
+          className="text-right tabular-nums"
           value={coin.coinsMined || 0}
           onChange={(e) => onChange({ ...coin, coinsMined: Number(e.target.value) })}
         />
