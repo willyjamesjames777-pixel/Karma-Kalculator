@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { HashrateEditor } from "@/components/HashrateEditor";
 
 type HashUnit = "H/s" | "kH/s" | "MH/s" | "GH/s" | "TH/s" | "PH/s" | "EH/s";
