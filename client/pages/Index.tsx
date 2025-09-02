@@ -77,6 +77,14 @@ function formatCurrency(n?: number) {
   return new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 6 }).format(n);
 }
 
+function shareExplanation(myHps?: number, netHps?: number, pct?: number) {
+  if (!myHps || !netHps || !pct) return "Share = My / Network × 100";
+  const my = formatHashrate(myHps);
+  const net = formatHashrate(netHps);
+  const ratio = myHps / netHps;
+  return `Share = My / Network × 100 = ${my} / ${net} = ${ratio.toPrecision(3)} × 100 = ${pct.toFixed(6)}%`;
+}
+
 function PriceCell({ m }: { m?: CoinMarket }) {
   if (!m) return <span>-</span>;
   const pc24 = m.price_change_percentage_24h_in_currency ?? 0;
