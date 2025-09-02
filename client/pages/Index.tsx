@@ -247,6 +247,7 @@ export default function Index() {
                 <TableRow>
                   <TableHead>Coin</TableHead>
                   <TableHead>Price (USD)</TableHead>
+                  <TableHead className="text-right">Market Cap</TableHead>
                   <TableHead className="text-right">Network Hashrate</TableHead>
                   <TableHead className="text-right">My Hashrate</TableHead>
                   <TableHead className="text-right">Share</TableHead>
