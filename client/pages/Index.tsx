@@ -692,7 +692,12 @@ function useCalcState() {
   const [rows, setRows] = useState<CalcRow[]>(() => {
     try {
       const raw = localStorage.getItem(CALC_LS);
-      if (raw) return JSON.parse(raw) as CalcRow[];
+      if (raw) {
+        const parsed = JSON.parse(raw) as CalcRow[];
+        const sampleIds = new Set(["bitcoin", "kaspa", "ethereum-classic", "monero"]);
+        const onlySamples = parsed.length > 0 && parsed.every(r => sampleIds.has(r.coinId));
+        return onlySamples ? [] : parsed;
+      }
     } catch {}
     return [];
   });
