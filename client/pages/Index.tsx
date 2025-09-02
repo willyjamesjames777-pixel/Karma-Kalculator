@@ -35,6 +35,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { HashrateEditor } from "@/components/HashrateEditor";
+import { Switch } from "@/components/ui/switch";
 
 type HashUnit = "H/s" | "kH/s" | "MH/s" | "GH/s" | "TH/s" | "PH/s" | "EH/s";
 const UNIT_MULT: Record<HashUnit, number> = {
