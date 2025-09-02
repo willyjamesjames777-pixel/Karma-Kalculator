@@ -178,6 +178,40 @@ export default function Index() {
     return map;
   }, [markets]);
 
+  function exportCsv(rows: TrackedCoin[], marketMap: Map<string, CoinMarket>) {
+    const header = [
+      "id","mpsSlug","coin","symbol","price_usd","market_cap_usd","network_hashrate_hps","my_hashrate_hps","share_percent","pool","coins_mined","date"
+    ];
+    const lines: string[] = [];
+    lines.push(header.join(","));
+    function esc(v: unknown): string {
+      const s = v == null ? "" : String(v);
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    rows.forEach((c) => {
+      const m = marketMap.get(c.id);
+      const price = m?.current_price ?? "";
+      const mc = m?.market_cap ?? "";
+      const net = c.netHashOverrideHps ?? "";
+      const my = c.myHashrate ?? "";
+      const share = net && my ? (my / (net as number)) * 100 : "";
+      const csvRow = [
+        esc(c.id), esc(c.mpsSlug), esc(m?.name || c.id), esc(m?.symbol || ""),
+        price, mc, net, my, share === "" ? "" : (share as number).toFixed(6), esc(c.pool || ""), c.coinsMined ?? "", esc(c.minedDate || "")
+      ].join(",");
+      lines.push(csvRow);
+    });
+    const csv = lines.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const ts = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const fname = `portfolio-${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}-${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.csv`;
+    a.href = url; a.download = fname; document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   const addCoin = () => {
     const id = normalizeSlug(newCoin.id);
     const slugInput = normalizeSlug(newCoin.mpsSlug);
