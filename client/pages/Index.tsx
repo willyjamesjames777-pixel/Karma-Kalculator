@@ -109,12 +109,28 @@ function normalizeSlug(input: string) {
   return input.trim().toLowerCase();
 }
 
+function deriveNetworkHashrate(data: any): number | undefined {
+  const direct = parseHashrateText(
+    data?.network_hashrate ?? data?.hash ?? data?.nethash ?? data?.nethashrate ?? data?.netHash
+  );
+  if (direct) return direct;
+  const pools = data?.pools || data?.pool;
+  if (Array.isArray(pools)) {
+    let sum = 0;
+    for (const p of pools) {
+      const v = parseHashrateText(p?.hashrate ?? p?.hash ?? p?.hash_rate);
+      if (typeof v === "number" && Number.isFinite(v)) sum += v;
+    }
+    return sum > 0 ? sum : undefined;
+  }
+  return undefined;
+}
+
 function useMining(slug?: string) {
-  const { data } = useMiningCoin(slug);
-  const networkRaw = (data as any)?.network_hashrate ?? (data as any)?.hash ?? (data as any)?.nethash ?? undefined;
-  const networkHashrate = parseHashrateText(networkRaw);
+  const { data, error } = useMiningCoin(slug);
+  const networkHashrate = deriveNetworkHashrate(data);
   const pools: MiningCoinData["pools"] | undefined = (data as any)?.pools || (data as any)?.pool || undefined;
-  return { data, networkHashrate, pools };
+  return { data, error, networkHashrate, pools };
 }
 
 export default function Index() {
