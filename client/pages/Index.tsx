@@ -530,6 +530,8 @@ export default function Index() {
             </Table>
           </CardContent>
         </Card>
+
+        <ProfitCalculator />
       </div>
     </div>
   );
