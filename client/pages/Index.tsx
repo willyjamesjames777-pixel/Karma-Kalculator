@@ -16,20 +16,39 @@ import { useMiningCoin } from "@/hooks/useMiningCoin";
 import type { CoinMarket, MiningCoinData } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { ArrowUpRight, ArrowDownRight, RefreshCw, Plus, Trash2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type HashUnit = "H/s" | "kH/s" | "MH/s" | "GH/s" | "TH/s" | "PH/s" | "EH/s";
+const UNIT_MULT: Record<HashUnit, number> = {
+  "H/s": 1,
+  "kH/s": 1e3,
+  "MH/s": 1e6,
+  "GH/s": 1e9,
+  "TH/s": 1e12,
+  "PH/s": 1e15,
+  "EH/s": 1e18,
+};
 
 interface TrackedCoin {
   id: string; // CoinGecko id (e.g., bitcoin)
   mpsSlug: string; // MiningPoolStats slug (e.g., bitcoin)
-  myHashrate: number; // in H/s
+  myHashrate: number; // stored in H/s
   pool?: string; // pool name or URL
-  coinsMined?: number; // lifetime or period you choose
+  coinsMined?: number;
+  minedDate?: string; // ISO date (yyyy-mm-dd)
 }
 
 const LS_KEY = "hashtrack.coins.v1";
 
 function formatHashrate(value: number | undefined) {
   if (!value || value <= 0) return "-";
-  const units = ["H/s", "kH/s", "MH/s", "GH/s", "TH/s", "PH/s", "EH/s"] as const;
+  const units: HashUnit[] = ["H/s", "kH/s", "MH/s", "GH/s", "TH/s", "PH/s", "EH/s"];
   let idx = 0;
   let v = value;
   while (v >= 1000 && idx < units.length - 1) {
@@ -37,6 +56,17 @@ function formatHashrate(value: number | undefined) {
     idx++;
   }
   return `${v.toFixed(2)} ${units[idx]}`;
+}
+
+function parseHashrateText(input: unknown): number | undefined {
+  if (typeof input === "number") return input;
+  if (typeof input !== "string") return undefined;
+  const m = input.trim().match(/([0-9]+(?:\.[0-9]+)?)\s*(EH|PH|TH|GH|MH|kH|H)\/?s?/i);
+  if (!m) return Number.isFinite(Number(input)) ? Number(input) : undefined;
+  const value = parseFloat(m[1]);
+  const unit = (m[2].toUpperCase() + "/s") as HashUnit;
+  const mult = UNIT_MULT[unit] ?? 1;
+  return value * mult;
 }
 
 function formatCurrency(n?: number) {
@@ -61,12 +91,28 @@ function PriceCell({ m }: { m?: CoinMarket }) {
   );
 }
 
+function normalizeSlug(input: string) {
+  if (!input) return "";
+  try {
+    const url = new URL(input);
+    const parts = url.pathname.split("/").filter(Boolean);
+    // CoinGecko: /en/coins/<slug>
+    const cgIdx = parts.indexOf("coins");
+    if (cgIdx >= 0 && parts[cgIdx + 1]) return parts[cgIdx + 1].toLowerCase();
+    // MiningPoolStats: /<slug>
+    if (parts.length >= 1) return parts[parts.length - 1].toLowerCase();
+  } catch {
+    // not a URL, assume slug
+  }
+  return input.trim().toLowerCase();
+}
+
 function useMining(slug?: string) {
   const { data } = useMiningCoin(slug);
-  const networkHashrate = (data as any)?.network_hashrate || (data as any)?.hash || (data as any)?.nethash || undefined;
-  // Try to get pool list consistently
+  const networkRaw = (data as any)?.network_hashrate ?? (data as any)?.hash ?? (data as any)?.nethash ?? undefined;
+  const networkHashrate = parseHashrateText(networkRaw);
   const pools: MiningCoinData["pools"] | undefined = (data as any)?.pools || (data as any)?.pool || undefined;
-  return { data, networkHashrate: typeof networkHashrate === "number" ? networkHashrate : undefined, pools };
+  return { data, networkHashrate, pools };
 }
 
 export default function Index() {
@@ -80,7 +126,15 @@ export default function Index() {
       return [];
     }
   });
-  const [newCoin, setNewCoin] = useState<TrackedCoin>({ id: "", mpsSlug: "", myHashrate: 0, pool: "" });
+  const [newCoin, setNewCoin] = useState({
+    id: "",
+    mpsSlug: "",
+    hashValue: 0,
+    hashUnit: "H/s" as HashUnit,
+    pool: "",
+    coinsMined: 0,
+    minedDate: "",
+  });
 
   useEffect(() => {
     localStorage.setItem(LS_KEY, JSON.stringify(coins));
@@ -96,9 +150,20 @@ export default function Index() {
   }, [markets]);
 
   const addCoin = () => {
-    if (!newCoin.id || !newCoin.mpsSlug) return;
-    setCoins((prev) => [...prev, { ...newCoin }]);
-    setNewCoin({ id: "", mpsSlug: "", myHashrate: 0, pool: "" });
+    const id = normalizeSlug(newCoin.id);
+    const mpsSlug = normalizeSlug(newCoin.mpsSlug);
+    if (!id || !mpsSlug) return;
+    const myHashrate = (Number(newCoin.hashValue) || 0) * (UNIT_MULT[newCoin.hashUnit]);
+    const entry: TrackedCoin = {
+      id,
+      mpsSlug,
+      myHashrate,
+      pool: newCoin.pool || undefined,
+      coinsMined: Number(newCoin.coinsMined) || 0,
+      minedDate: newCoin.minedDate || undefined,
+    };
+    setCoins((prev) => [...prev, entry]);
+    setNewCoin({ id: "", mpsSlug: "", hashValue: 0, hashUnit: "H/s", pool: "", coinsMined: 0, minedDate: "" });
   };
 
   const removeCoin = (idx: number) => setCoins((prev) => prev.filter((_, i) => i !== idx));
@@ -123,22 +188,45 @@ export default function Index() {
             </CardHeader>
             <CardContent className="grid md:grid-cols-12 gap-4">
               <div className="md:col-span-3">
-                <Label htmlFor="cgid">CoinGecko ID</Label>
-                <Input id="cgid" placeholder="e.g. bitcoin" value={newCoin.id} onChange={(e) => setNewCoin({ ...newCoin, id: e.target.value.trim() })} />
-                <p className="text-[11px] text-muted-foreground mt-1">Find IDs at coingecko.com (coin page URL slug).</p>
+                <Label htmlFor="cgid">CoinGecko ID or URL</Label>
+                <Input id="cgid" placeholder="e.g. bitcoin or https://coingecko.com/coins/bitcoin" value={newCoin.id} onChange={(e) => setNewCoin({ ...newCoin, id: e.target.value })} />
+                <p className="text-[11px] text-muted-foreground mt-1">Paste the coin page URL or slug.</p>
               </div>
               <div className="md:col-span-3">
-                <Label htmlFor="mps">MiningPoolStats Slug</Label>
-                <Input id="mps" placeholder="e.g. bitcoin" value={newCoin.mpsSlug} onChange={(e) => setNewCoin({ ...newCoin, mpsSlug: e.target.value.trim() })} />
-                <p className="text-[11px] text-muted-foreground mt-1">From miningpoolstats.stream (coin page URL slug).</p>
+                <Label htmlFor="mps">MiningPoolStats Slug or URL</Label>
+                <Input id="mps" placeholder="e.g. bitcoin or https://miningpoolstats.stream/bitcoin" value={newCoin.mpsSlug} onChange={(e) => setNewCoin({ ...newCoin, mpsSlug: e.target.value })} />
+                <p className="text-[11px] text-muted-foreground mt-1">Paste the coin page URL or slug.</p>
               </div>
-              <div className="md:col-span-3">
-                <Label htmlFor="hash">My Hashrate (H/s)</Label>
-                <Input id="hash" type="number" min={0} value={newCoin.myHashrate} onChange={(e) => setNewCoin({ ...newCoin, myHashrate: Number(e.target.value) })} />
+              <div className="md:col-span-3 grid grid-cols-12 gap-2">
+                <div className="col-span-7">
+                  <Label htmlFor="hash">My Hashrate</Label>
+                  <Input id="hash" type="number" min={0} value={newCoin.hashValue} onChange={(e) => setNewCoin({ ...newCoin, hashValue: Number(e.target.value) })} />
+                </div>
+                <div className="col-span-5">
+                  <Label>Unit</Label>
+                  <Select value={newCoin.hashUnit} onValueChange={(v) => setNewCoin({ ...newCoin, hashUnit: v as HashUnit })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(UNIT_MULT).map((u) => (
+                        <SelectItem key={u} value={u}>{u}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div className="md:col-span-2">
                 <Label htmlFor="pool">Pool</Label>
                 <Input id="pool" placeholder="e.g. ViaBTC" value={newCoin.pool} onChange={(e) => setNewCoin({ ...newCoin, pool: e.target.value })} />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="coins">Coins Mined</Label>
+                <Input id="coins" type="number" min={0} step={0.00000001} value={newCoin.coinsMined} onChange={(e) => setNewCoin({ ...newCoin, coinsMined: Number(e.target.value) })} />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="date">Date</Label>
+                <Input id="date" type="date" value={newCoin.minedDate} onChange={(e) => setNewCoin({ ...newCoin, minedDate: e.target.value })} />
               </div>
               <div className="md:col-span-1 flex items-end">
                 <Button className="w-full" onClick={addCoin}>
@@ -164,13 +252,14 @@ export default function Index() {
                   <TableHead className="text-right">Share</TableHead>
                   <TableHead>Pool</TableHead>
                   <TableHead className="text-right">Coins</TableHead>
+                  <TableHead className="text-right">Date</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {coins.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center text-muted-foreground py-10">
+                    <TableCell colSpan={9} className="text-center text-muted-foreground py-10">
                       Add your first coin above to start tracking live price and hashrate.
                     </TableCell>
                   </TableRow>
@@ -221,16 +310,18 @@ function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; mark
       <TableCell className="text-right">
         <div className="tabular-nums">{formatHashrate(networkHashrate)}</div>
       </TableCell>
-      <TableCell className="text-right w-[160px]">
-        <Input
-          inputMode="decimal"
-          type="number"
-          min={0}
-          className="text-right"
-          value={coin.myHashrate || 0}
-          onChange={(e) => onChange({ ...coin, myHashrate: Number(e.target.value) })}
-        />
-        <div className="text-[11px] text-muted-foreground mt-1 text-right">H/s</div>
+      <TableCell className="text-right w-[220px]">
+        <div className="grid grid-cols-12 gap-2">
+          <Input
+            inputMode="decimal"
+            type="number"
+            min={0}
+            className="col-span-7 text-right"
+            value={coin.myHashrate || 0}
+            onChange={(e) => onChange({ ...coin, myHashrate: Number(e.target.value) })}
+          />
+          <div className="col-span-5 text-left text-xs text-muted-foreground flex items-center">H/s</div>
+        </div>
       </TableCell>
       <TableCell className="text-right">
         {share == null ? "-" : (
@@ -252,6 +343,9 @@ function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; mark
           value={coin.coinsMined || 0}
           onChange={(e) => onChange({ ...coin, coinsMined: Number(e.target.value) })}
         />
+      </TableCell>
+      <TableCell className="text-right w-[160px]">
+        <Input type="date" value={coin.minedDate || ""} onChange={(e) => onChange({ ...coin, minedDate: e.target.value })} />
       </TableCell>
       <TableCell className="text-right">
         <Button variant="ghost" size="icon" onClick={onRemove} aria-label="Remove">
