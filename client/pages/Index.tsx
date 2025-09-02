@@ -149,6 +149,8 @@ export default function Index() {
     mpsSlug: "",
     hashValue: 0,
     hashUnit: "H/s" as HashUnit,
+    netHashValue: 0,
+    netHashUnit: "H/s" as HashUnit,
     pool: "",
     coinsMined: 0,
     minedDate: "",
