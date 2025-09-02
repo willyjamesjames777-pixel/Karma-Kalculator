@@ -309,20 +309,13 @@ function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; mark
         <PriceCell m={market} />
       </TableCell>
       <TableCell className="text-right">
+        <div className="tabular-nums">{market?.market_cap ? formatCurrency(market.market_cap) : "-"}</div>
+      </TableCell>
+      <TableCell className="text-right">
         <div className="tabular-nums">{formatHashrate(networkHashrate)}</div>
       </TableCell>
-      <TableCell className="text-right w-[220px]">
-        <div className="grid grid-cols-12 gap-2">
-          <Input
-            inputMode="decimal"
-            type="number"
-            min={0}
-            className="col-span-7 text-right"
-            value={coin.myHashrate || 0}
-            onChange={(e) => onChange({ ...coin, myHashrate: Number(e.target.value) })}
-          />
-          <div className="col-span-5 text-left text-xs text-muted-foreground flex items-center">H/s</div>
-        </div>
+      <TableCell className="text-right w-[260px]">
+        <HashrateEditor valueHps={coin.myHashrate || 0} onChangeHps={(hps) => onChange({ ...coin, myHashrate: hps })} />
       </TableCell>
       <TableCell className="text-right">
         {share == null ? "-" : (
