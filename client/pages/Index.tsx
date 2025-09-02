@@ -377,7 +377,14 @@ function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; mark
       </TableCell>
       <TableCell className="text-right">
         {share == null ? "-" : (
-          <span className="tabular-nums font-medium">{(share < 0.000001 ? 0 : share).toFixed(6)}%</span>
+          <Tooltip>
+            <TooltipTrigger className="tabular-nums font-medium underline decoration-dotted underline-offset-4">
+              {(share < 0.000001 ? 0 : share).toFixed(6)}%
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="max-w-xs text-xs">{shareExplanation(coin.myHashrate, effectiveNetHash, share)}</div>
+            </TooltipContent>
+          </Tooltip>
         )}
       </TableCell>
       <TableCell className="min-w-[160px]">
