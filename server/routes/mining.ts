@@ -20,7 +20,11 @@ export const handleMiningCoin: RequestHandler = async (req, res) => {
       return res.status(200).json(cached);
     }
 
-    const resp = await fetchWithRetry(url, { headers: { accept: "application/json" } }, { retries: 2, baseDelayMs: 700 });
+    const resp = await fetchWithRetry(
+      url,
+      { headers: { accept: "application/json" } },
+      { retries: 2, baseDelayMs: 700 },
+    );
 
     if (!resp.ok) {
       // serve stale on 429/5xx
@@ -32,7 +36,9 @@ export const handleMiningCoin: RequestHandler = async (req, res) => {
         }
       }
       const text = await resp.text();
-      return res.status(resp.status).json({ error: "MiningPoolStats error", details: text });
+      return res
+        .status(resp.status)
+        .json({ error: "MiningPoolStats error", details: text });
     }
 
     const data = await resp.json();
@@ -40,7 +46,12 @@ export const handleMiningCoin: RequestHandler = async (req, res) => {
     res.setHeader("cache-control", "public, max-age=120");
     res.status(200).json(data);
   } catch (err: any) {
-    res.status(500).json({ error: "Failed to fetch MiningPoolStats coin data", details: err?.message ?? String(err) });
+    res
+      .status(500)
+      .json({
+        error: "Failed to fetch MiningPoolStats coin data",
+        details: err?.message ?? String(err),
+      });
   }
 };
 

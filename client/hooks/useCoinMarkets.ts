@@ -18,7 +18,9 @@ export function useCoinMarkets(ids: string[], vsCurrency: string = "usd") {
         // fall through to direct
       }
       try {
-        const res2 = await fetch(directUrl, { headers: { accept: "application/json" } });
+        const res2 = await fetch(directUrl, {
+          headers: { accept: "application/json" },
+        });
         if (res2.ok) return (await res2.json()) as CoinMarket[];
       } catch {
         // ignore

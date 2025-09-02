@@ -7,7 +7,10 @@ export function useMiningCoin(slug: string | undefined) {
     queryKey: ["mining-coin", slug],
     queryFn: async () => {
       try {
-        const res = await fetch(`/api/mining/coin/${encodeURIComponent(slug || "")}`, { credentials: "same-origin" });
+        const res = await fetch(
+          `/api/mining/coin/${encodeURIComponent(slug || "")}`,
+          { credentials: "same-origin" },
+        );
         if (!res.ok) throw new Error(`Failed mining data (${res.status})`);
         return (await res.json()) as MiningCoinData;
       } catch {

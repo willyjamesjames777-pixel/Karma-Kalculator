@@ -21,7 +21,9 @@ function Header() {
           <span className={cn("font-extrabold tracking-tight")}>HashTrack</span>
         </Link>
         <nav className="text-sm text-muted-foreground">
-          <a href="/" className="hover:text-foreground transition-colors">Home</a>
+          <a href="/" className="hover:text-foreground transition-colors">
+            Home
+          </a>
         </nav>
       </div>
     </header>

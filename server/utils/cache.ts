@@ -23,7 +23,10 @@ export function getStale<T>(key: string): T | undefined {
   return hit?.value as T | undefined;
 }
 
-export function cacheKeyFrom(url: string, params?: Record<string, any>): string {
+export function cacheKeyFrom(
+  url: string,
+  params?: Record<string, any>,
+): string {
   const p = params ? JSON.stringify(params) : "";
   return `${url}::${p}`;
 }
