@@ -238,6 +238,26 @@ export default function Index() {
                   </Select>
                 </div>
               </div>
+
+              <div className="md:col-span-4 grid grid-cols-12 gap-2">
+                <div className="col-span-7">
+                  <Label htmlFor="nethash">Network Hashrate (optional)</Label>
+                  <Input id="nethash" type="number" min={0} value={newCoin.netHashValue} onChange={(e) => setNewCoin({ ...newCoin, netHashValue: Number(e.target.value) })} />
+                </div>
+                <div className="col-span-5">
+                  <Label>Unit</Label>
+                  <Select value={newCoin.netHashUnit} onValueChange={(v) => setNewCoin({ ...newCoin, netHashUnit: v as HashUnit })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Unit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(UNIT_MULT).map((u) => (
+                        <SelectItem key={u} value={u}>{u}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <div className="md:col-span-2">
                 <Label htmlFor="pool">Pool</Label>
                 <Input id="pool" placeholder="e.g. ViaBTC" value={newCoin.pool} onChange={(e) => setNewCoin({ ...newCoin, pool: e.target.value })} />
