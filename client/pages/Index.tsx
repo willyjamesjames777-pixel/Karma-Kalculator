@@ -333,15 +333,11 @@ function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; mark
       <TableCell className="text-right">
         <div className="tabular-nums">{market?.market_cap ? formatCurrency(market.market_cap) : "-"}</div>
       </TableCell>
-      <TableCell className="text-right">
-        {effectiveNetHash ? (
-          <div className="tabular-nums">{formatHashrate(effectiveNetHash)}</div>
-        ) : (
-          <div className="space-y-2">
-            <div className="text-xs text-muted-foreground">No network hashrate found{error ? `: ${error.message}` : ""}.</div>
-            <HashrateEditor valueHps={coin.netHashOverrideHps || 0} onChangeHps={(hps) => onChange({ ...coin, netHashOverrideHps: hps })} />
-          </div>
-        )}
+      <TableCell className="text-right min-w-[280px]">
+        <div className="flex flex-col items-end gap-2">
+          <div className="text-xs text-muted-foreground">Auto: {networkHashrate ? <span className="tabular-nums">{formatHashrate(networkHashrate)}</span> : <span>—</span>} {error ? <span className="ml-2">({error.message})</span> : null}</div>
+          <div className="w-full max-w-[260px]"><HashrateEditor valueHps={coin.netHashOverrideHps || 0} onChangeHps={(hps) => onChange({ ...coin, netHashOverrideHps: hps })} /></div>
+        </div>
       </TableCell>
       <TableCell className="text-right w-[260px]">
         <HashrateEditor valueHps={coin.myHashrate || 0} onChangeHps={(hps) => onChange({ ...coin, myHashrate: hps })} />
