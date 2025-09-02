@@ -174,16 +174,18 @@ export default function Index() {
     const mpsSlug = normalizeSlug(newCoin.mpsSlug);
     if (!id || !mpsSlug) return;
     const myHashrate = (Number(newCoin.hashValue) || 0) * (UNIT_MULT[newCoin.hashUnit]);
+    const netHashOverrideHps = (Number(newCoin.netHashValue) || 0) * (UNIT_MULT[newCoin.netHashUnit]);
     const entry: TrackedCoin = {
       id,
       mpsSlug,
       myHashrate,
+      netHashOverrideHps: netHashOverrideHps > 0 ? netHashOverrideHps : undefined,
       pool: newCoin.pool || undefined,
       coinsMined: Number(newCoin.coinsMined) || 0,
       minedDate: newCoin.minedDate || undefined,
     };
     setCoins((prev) => [...prev, entry]);
-    setNewCoin({ id: "", mpsSlug: "", hashValue: 0, hashUnit: "H/s", pool: "", coinsMined: 0, minedDate: "" });
+    setNewCoin({ id: "", mpsSlug: "", hashValue: 0, hashUnit: "H/s", netHashValue: 0, netHashUnit: "H/s", pool: "", coinsMined: 0, minedDate: "" });
   };
 
   const removeCoin = (idx: number) => setCoins((prev) => prev.filter((_, i) => i !== idx));
