@@ -344,7 +344,7 @@ function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; mark
       </TableCell>
       <TableCell className="text-right">
         {share == null ? "-" : (
-          <span className="tabular-nums font-medium">{share.toFixed(6)}%</span>
+          <span className="tabular-nums font-medium">{(share < 0.000001 ? 0 : share).toFixed(6)}%</span>
         )}
       </TableCell>
       <TableCell className="min-w-[160px]">
