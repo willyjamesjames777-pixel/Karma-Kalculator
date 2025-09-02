@@ -203,15 +203,14 @@ export default function Index() {
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Portfolio");
-    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
     const ts = new Date();
     const pad = (n: number) => String(n).padStart(2, "0");
     const fname = `portfolio-${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}-${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}.xlsx`;
-    a.href = url; a.download = fname; document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
+    if ((XLSX as any).writeFileXLSX) {
+      (XLSX as any).writeFileXLSX(wb, fname);
+    } else {
+      (XLSX as any).writeFile(wb, fname, { bookType: "xlsx" });
+    }
   }
 
   const addCoin = () => {
