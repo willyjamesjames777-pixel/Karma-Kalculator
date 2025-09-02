@@ -143,7 +143,11 @@ function normalizeSlug(input: string) {
 
 function deriveNetworkHashrate(data: any): number | undefined {
   const direct = parseHashrateText(
-    data?.network_hashrate ?? data?.hash ?? data?.nethash ?? data?.nethashrate ?? data?.netHash,
+    data?.network_hashrate ??
+      data?.hash ??
+      data?.nethash ??
+      data?.nethashrate ??
+      data?.netHash,
   );
   if (direct) return direct;
   const pools = data?.pools || data?.pool;
@@ -166,11 +170,7 @@ function useMining(slug?: string) {
   return { data, error, networkHashrate, pools };
 }
 
-function shareExplanation(
-  myHps?: number,
-  netHps?: number,
-  pct?: number,
-) {
+function shareExplanation(myHps?: number, netHps?: number, pct?: number) {
   if (!myHps || !netHps || !pct) return "Share = My / Network × 100";
   const my = formatHashrate(myHps);
   const net = formatHashrate(netHps);
@@ -262,14 +262,16 @@ export default function Index() {
     const id = normalizeSlug(newCoin.id);
     const slugInput = normalizeSlug(newCoin.mpsSlug);
     if (!id) return;
-    const myHashrate = (Number(newCoin.hashValue) || 0) * UNIT_MULT[newCoin.hashUnit];
+    const myHashrate =
+      (Number(newCoin.hashValue) || 0) * UNIT_MULT[newCoin.hashUnit];
     const netHashOverrideHps =
       (Number(newCoin.netHashValue) || 0) * UNIT_MULT[newCoin.netHashUnit];
     const entry: TrackedCoin = {
       id,
       mpsSlug: slugInput || id,
       myHashrate,
-      netHashOverrideHps: netHashOverrideHps > 0 ? netHashOverrideHps : undefined,
+      netHashOverrideHps:
+        netHashOverrideHps > 0 ? netHashOverrideHps : undefined,
       pool: newCoin.pool || undefined,
       coinsMined: Number(newCoin.coinsMined) || 0,
       minedDate: newCoin.minedDate || undefined,
@@ -321,7 +323,8 @@ export default function Index() {
               Mining Tracker
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              List new coins, compare your hashrate vs network/pool, and track live prices.
+              List new coins, compare your hashrate vs network/pool, and track
+              live prices.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -338,7 +341,10 @@ export default function Index() {
               disabled={isFetching}
               className="gap-2"
             >
-              <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin")} /> Refresh
+              <RefreshCw
+                className={cn("w-4 h-4", isFetching && "animate-spin")}
+              />{" "}
+              Refresh
             </Button>
           </div>
         </div>
@@ -355,7 +361,9 @@ export default function Index() {
                   id="cgid"
                   placeholder="e.g. bitcoin or https://coingecko.com/coins/bitcoin"
                   value={newCoin.id}
-                  onChange={(e) => setNewCoin({ ...newCoin, id: e.target.value })}
+                  onChange={(e) =>
+                    setNewCoin({ ...newCoin, id: e.target.value })
+                  }
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">
                   Paste the coin page URL or slug.
@@ -367,7 +375,9 @@ export default function Index() {
                   id="mps"
                   placeholder="e.g. bitcoin or https://miningpoolstats.stream/bitcoin"
                   value={newCoin.mpsSlug}
-                  onChange={(e) => setNewCoin({ ...newCoin, mpsSlug: e.target.value })}
+                  onChange={(e) =>
+                    setNewCoin({ ...newCoin, mpsSlug: e.target.value })
+                  }
                 />
                 <p className="text-[11px] text-muted-foreground mt-1">
                   Paste the coin page URL or slug.
@@ -382,7 +392,10 @@ export default function Index() {
                     min={0}
                     value={newCoin.hashValue}
                     onChange={(e) =>
-                      setNewCoin({ ...newCoin, hashValue: Number(e.target.value) })
+                      setNewCoin({
+                        ...newCoin,
+                        hashValue: Number(e.target.value),
+                      })
                     }
                   />
                 </div>
@@ -390,7 +403,9 @@ export default function Index() {
                   <Label>Unit</Label>
                   <Select
                     value={newCoin.hashUnit}
-                    onValueChange={(v) => setNewCoin({ ...newCoin, hashUnit: v as HashUnit })}
+                    onValueChange={(v) =>
+                      setNewCoin({ ...newCoin, hashUnit: v as HashUnit })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Unit" />
@@ -415,7 +430,10 @@ export default function Index() {
                     min={0}
                     value={newCoin.netHashValue}
                     onChange={(e) =>
-                      setNewCoin({ ...newCoin, netHashValue: Number(e.target.value) })
+                      setNewCoin({
+                        ...newCoin,
+                        netHashValue: Number(e.target.value),
+                      })
                     }
                   />
                 </div>
@@ -423,7 +441,9 @@ export default function Index() {
                   <Label>Unit</Label>
                   <Select
                     value={newCoin.netHashUnit}
-                    onValueChange={(v) => setNewCoin({ ...newCoin, netHashUnit: v as HashUnit })}
+                    onValueChange={(v) =>
+                      setNewCoin({ ...newCoin, netHashUnit: v as HashUnit })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Unit" />
@@ -444,7 +464,9 @@ export default function Index() {
                   id="pool"
                   placeholder="e.g. ViaBTC"
                   value={newCoin.pool}
-                  onChange={(e) => setNewCoin({ ...newCoin, pool: e.target.value })}
+                  onChange={(e) =>
+                    setNewCoin({ ...newCoin, pool: e.target.value })
+                  }
                 />
               </div>
               <div className="md:col-span-2">
@@ -456,7 +478,10 @@ export default function Index() {
                   step={0.00000001}
                   value={newCoin.coinsMined}
                   onChange={(e) =>
-                    setNewCoin({ ...newCoin, coinsMined: Number(e.target.value) })
+                    setNewCoin({
+                      ...newCoin,
+                      coinsMined: Number(e.target.value),
+                    })
                   }
                 />
               </div>
@@ -466,7 +491,9 @@ export default function Index() {
                   id="date"
                   type="date"
                   value={newCoin.minedDate}
-                  onChange={(e) => setNewCoin({ ...newCoin, minedDate: e.target.value })}
+                  onChange={(e) =>
+                    setNewCoin({ ...newCoin, minedDate: e.target.value })
+                  }
                 />
               </div>
               <div className="md:col-span-1 flex items-end">
@@ -501,8 +528,12 @@ export default function Index() {
               <TableBody>
                 {coins.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center text-muted-foreground py-10">
-                      Add your first coin above to start tracking live price and hashrate.
+                    <TableCell
+                      colSpan={9}
+                      className="text-center text-muted-foreground py-10"
+                    >
+                      Add your first coin above to start tracking live price and
+                      hashrate.
                     </TableCell>
                   </TableRow>
                 )}
@@ -510,7 +541,11 @@ export default function Index() {
                   <CoinRow
                     key={`${c.id}-${idx}`}
                     coin={c}
-                    onChange={(next) => setCoins((prev) => prev.map((p, i) => (i === idx ? next : p)))}
+                    onChange={(next) =>
+                      setCoins((prev) =>
+                        prev.map((p, i) => (i === idx ? next : p)),
+                      )
+                    }
                     onRemove={() => removeCoin(idx)}
                     market={marketsById.get(c.id)}
                   />
@@ -544,7 +579,8 @@ function CoinRow({
       : networkHashrate;
   const share = useMemo(() => {
     const denom = effectiveNetHash ?? 0;
-    if (denom <= 0 || !coin.myHashrate || coin.myHashrate <= 0) return undefined;
+    if (denom <= 0 || !coin.myHashrate || coin.myHashrate <= 0)
+      return undefined;
     const pct = (coin.myHashrate / denom) * 100;
     if (!Number.isFinite(pct)) return undefined;
     return pct;
@@ -555,7 +591,11 @@ function CoinRow({
       <TableCell className="min-w-[180px]">
         <div className="flex items-center gap-3">
           {market ? (
-            <img src={market.image} alt={market.name} className="w-7 h-7 rounded" />
+            <img
+              src={market.image}
+              alt={market.name}
+              className="w-7 h-7 rounded"
+            />
           ) : (
             <div className="w-7 h-7 rounded bg-muted" />
           )}
@@ -580,7 +620,9 @@ function CoinRow({
           <div className="text-xs text-muted-foreground">
             Auto:{" "}
             {networkHashrate ? (
-              <span className="tabular-nums">{formatHashrate(networkHashrate)}</span>
+              <span className="tabular-nums">
+                {formatHashrate(networkHashrate)}
+              </span>
             ) : (
               <span>—</span>
             )}{" "}
@@ -589,7 +631,9 @@ function CoinRow({
           <div className="w-full max-w-[320px]">
             <HashrateEditor
               valueHps={coin.netHashOverrideHps || 0}
-              onChangeHps={(hps) => onChange({ ...coin, netHashOverrideHps: hps })}
+              onChangeHps={(hps) =>
+                onChange({ ...coin, netHashOverrideHps: hps })
+              }
             />
           </div>
         </div>
@@ -635,7 +679,9 @@ function CoinRow({
           min={0}
           className="text-right tabular-nums"
           value={coin.coinsMined || 0}
-          onChange={(e) => onChange({ ...coin, coinsMined: Number(e.target.value) })}
+          onChange={(e) =>
+            onChange({ ...coin, coinsMined: Number(e.target.value) })
+          }
         />
       </TableCell>
       <TableCell className="text-right w-[160px]">
@@ -646,7 +692,12 @@ function CoinRow({
         />
       </TableCell>
       <TableCell className="text-right">
-        <Button variant="ghost" size="icon" onClick={onRemove} aria-label="Remove">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onRemove}
+          aria-label="Remove"
+        >
           <Trash2 className="w-4 h-4" />
         </Button>
       </TableCell>
@@ -676,7 +727,12 @@ function toHps(value: number, unit: HashUnit) {
   return (Number(value) || 0) * UNIT_MULT[unit];
 }
 
-function blocksPerDay(myHps: number, netHps: number, blockTime: number, poolFeePct: number) {
+function blocksPerDay(
+  myHps: number,
+  netHps: number,
+  blockTime: number,
+  poolFeePct: number,
+) {
   if (!myHps || !netHps || !blockTime) return 0;
   const networkBlocksPerDay = 86400 / blockTime;
   const share = myHps / netHps;
@@ -694,8 +750,14 @@ function useCalcState() {
       const raw = localStorage.getItem(CALC_LS);
       if (raw) {
         const parsed = JSON.parse(raw) as CalcRow[];
-        const sampleIds = new Set(["bitcoin", "kaspa", "ethereum-classic", "monero"]);
-        const onlySamples = parsed.length > 0 && parsed.every(r => sampleIds.has(r.coinId));
+        const sampleIds = new Set([
+          "bitcoin",
+          "kaspa",
+          "ethereum-classic",
+          "monero",
+        ]);
+        const onlySamples =
+          parsed.length > 0 && parsed.every((r) => sampleIds.has(r.coinId));
         return onlySamples ? [] : parsed;
       }
     } catch {}
@@ -720,16 +782,23 @@ function useCalcState() {
 
 function ProfitCalculator() {
   const { rows, setRows } = useCalcState();
-  const ids = useMemo(() => rows.filter(r => r.enabled).map(r => r.coinId).filter(Boolean), [rows]);
+  const ids = useMemo(
+    () =>
+      rows
+        .filter((r) => r.enabled)
+        .map((r) => r.coinId)
+        .filter(Boolean),
+    [rows],
+  );
   const { data: prices } = useCoinMarkets(ids, "usd");
   const priceMap = useMemo(() => {
     const m = new Map<string, CoinMarket>();
-    prices?.forEach(p => m.set(p.id, p));
+    prices?.forEach((p) => m.set(p.id, p));
     return m;
   }, [prices]);
 
-  const enabledRows = rows.filter(r => r.enabled);
-  const profits = enabledRows.map(r => {
+  const enabledRows = rows.filter((r) => r.enabled);
+  const profits = enabledRows.map((r) => {
     const my = toHps(r.yourVal, r.yourUnit);
     const net = toHps(r.netVal, r.netUnit);
     const bpd = blocksPerDay(my, net, r.blockTimeSec, r.poolFeePct);
@@ -740,10 +809,31 @@ function ProfitCalculator() {
   });
   const ranks = new Map<number, number>();
   const sorted = [...profits].sort((a, b) => b - a);
-  profits.forEach((p, i) => { ranks.set(i, sorted.indexOf(p) + 1); });
+  profits.forEach((p, i) => {
+    ranks.set(i, sorted.indexOf(p) + 1);
+  });
 
-  const addRow = () => setRows(prev => [...prev, { enabled: true, coin: "", coinId: "", yourVal: 0, yourUnit: "H/s", powerWatts: 0, elecPerKwh: 0.1, netVal: 0, netUnit: "H/s", blockReward: 0, blockTimeSec: 0, poolFeePct: 0, notes: "" }]);
-  const removeRow = (i: number) => setRows(prev => prev.filter((_, idx) => idx !== i));
+  const addRow = () =>
+    setRows((prev) => [
+      ...prev,
+      {
+        enabled: true,
+        coin: "",
+        coinId: "",
+        yourVal: 0,
+        yourUnit: "H/s",
+        powerWatts: 0,
+        elecPerKwh: 0.1,
+        netVal: 0,
+        netUnit: "H/s",
+        blockReward: 0,
+        blockTimeSec: 0,
+        poolFeePct: 0,
+        notes: "",
+      },
+    ]);
+  const removeRow = (i: number) =>
+    setRows((prev) => prev.filter((_, idx) => idx !== i));
 
   return (
     <Card className="mt-12 bg-card/60 backdrop-blur">
@@ -751,9 +841,20 @@ function ProfitCalculator() {
         <CardTitle>Profitability Calculator</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-3 text-xs text-muted-foreground">Live price from CoinGecko. Enter hashrates, network, rewards, power and costs; rows with Enabled=1 are ranked by daily profit.</div>
+        <div className="mb-3 text-xs text-muted-foreground">
+          Live price from CoinGecko. Enter hashrates, network, rewards, power
+          and costs; rows with Enabled=1 are ranked by daily profit.
+        </div>
         <div className="flex justify-end gap-2 mb-3">
-          <Button variant="outline" onClick={() => { localStorage.removeItem(CALC_LS); setRows([]); }}>Clear Calculator</Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              localStorage.removeItem(CALC_LS);
+              setRows([]);
+            }}
+          >
+            Clear Calculator
+          </Button>
           <Button onClick={addRow}>Add Row</Button>
         </div>
         <Table>
@@ -790,43 +891,261 @@ function ProfitCalculator() {
               const revenue = bpd * r.blockReward * price;
               const power = dailyPowerCostUSD(r.powerWatts, r.elecPerKwh);
               const profit = revenue - power;
-              const rank = r.enabled ? (ranks.get(enabledRows.indexOf(r)) || "") : "";
+              const rank = r.enabled
+                ? ranks.get(enabledRows.indexOf(r)) || ""
+                : "";
               return (
                 <TableRow key={idx} className="hover:bg-muted/30">
-                  <TableCell><Switch checked={r.enabled} onCheckedChange={(v) => setRows(prev => prev.map((p,i)=> i===idx? { ...p, enabled: Boolean(v)}:p))} /></TableCell>
-                  <TableCell className="min-w-[160px]"><Input value={r.coin} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, coin: e.target.value }:p))} placeholder="Coin name" /></TableCell>
-                  <TableCell className="min-w-[160px]"><Input value={r.coinId} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, coinId: e.target.value.trim().toLowerCase() }:p))} placeholder="coingecko id" /></TableCell>
-                  <TableCell className="text-right min-w-[140px]"><Input type="number" inputMode="decimal" value={r.yourVal} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, yourVal: Number(e.target.value) }:p))} className="text-right" /></TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={r.enabled}
+                      onCheckedChange={(v) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx ? { ...p, enabled: Boolean(v) } : p,
+                          ),
+                        )
+                      }
+                    />
+                  </TableCell>
+                  <TableCell className="min-w-[160px]">
+                    <Input
+                      value={r.coin}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx ? { ...p, coin: e.target.value } : p,
+                          ),
+                        )
+                      }
+                      placeholder="Coin name"
+                    />
+                  </TableCell>
+                  <TableCell className="min-w-[160px]">
+                    <Input
+                      value={r.coinId}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx
+                              ? {
+                                  ...p,
+                                  coinId: e.target.value.trim().toLowerCase(),
+                                }
+                              : p,
+                          ),
+                        )
+                      }
+                      placeholder="coingecko id"
+                    />
+                  </TableCell>
+                  <TableCell className="text-right min-w-[140px]">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      value={r.yourVal}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx
+                              ? { ...p, yourVal: Number(e.target.value) }
+                              : p,
+                          ),
+                        )
+                      }
+                      className="text-right"
+                    />
+                  </TableCell>
                   <TableCell className="min-w-[120px]">
-                    <Select value={r.yourUnit} onValueChange={(v)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, yourUnit: v as HashUnit }:p))}>
-                      <SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger>
+                    <Select
+                      value={r.yourUnit}
+                      onValueChange={(v) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx ? { ...p, yourUnit: v as HashUnit } : p,
+                          ),
+                        )
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Unit" />
+                      </SelectTrigger>
                       <SelectContent>
-                        {(Object.keys(UNIT_MULT) as HashUnit[]).map(u=> <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                        {(Object.keys(UNIT_MULT) as HashUnit[]).map((u) => (
+                          <SelectItem key={u} value={u}>
+                            {u}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell className="text-right min-w-[120px]"><Input type="number" inputMode="decimal" value={r.powerWatts} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, powerWatts: Number(e.target.value) }:p))} className="text-right" /></TableCell>
-                  <TableCell className="text-right min-w-[120px]"><Input type="number" inputMode="decimal" value={r.elecPerKwh} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, elecPerKwh: Number(e.target.value) }:p))} className="text-right" /></TableCell>
-                  <TableCell className="text-right min-w-[140px]"><Input type="number" inputMode="decimal" value={r.netVal} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, netVal: Number(e.target.value) }:p))} className="text-right" /></TableCell>
+                  <TableCell className="text-right min-w-[120px]">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      value={r.powerWatts}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx
+                              ? { ...p, powerWatts: Number(e.target.value) }
+                              : p,
+                          ),
+                        )
+                      }
+                      className="text-right"
+                    />
+                  </TableCell>
+                  <TableCell className="text-right min-w-[120px]">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      value={r.elecPerKwh}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx
+                              ? { ...p, elecPerKwh: Number(e.target.value) }
+                              : p,
+                          ),
+                        )
+                      }
+                      className="text-right"
+                    />
+                  </TableCell>
+                  <TableCell className="text-right min-w-[140px]">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      value={r.netVal}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx
+                              ? { ...p, netVal: Number(e.target.value) }
+                              : p,
+                          ),
+                        )
+                      }
+                      className="text-right"
+                    />
+                  </TableCell>
                   <TableCell className="min-w-[120px]">
-                    <Select value={r.netUnit} onValueChange={(v)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, netUnit: v as HashUnit }:p))}>
-                      <SelectTrigger><SelectValue placeholder="Unit" /></SelectTrigger>
+                    <Select
+                      value={r.netUnit}
+                      onValueChange={(v) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx ? { ...p, netUnit: v as HashUnit } : p,
+                          ),
+                        )
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Unit" />
+                      </SelectTrigger>
                       <SelectContent>
-                        {(Object.keys(UNIT_MULT) as HashUnit[]).map(u=> <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                        {(Object.keys(UNIT_MULT) as HashUnit[]).map((u) => (
+                          <SelectItem key={u} value={u}>
+                            {u}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell className="text-right min-w-[120px]"><Input type="number" inputMode="decimal" value={r.blockReward} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, blockReward: Number(e.target.value) }:p))} className="text-right" /></TableCell>
-                  <TableCell className="text-right min-w-[120px]"><Input type="number" inputMode="decimal" value={r.blockTimeSec} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, blockTimeSec: Number(e.target.value) }:p))} className="text-right" /></TableCell>
-                  <TableCell className="text-right min-w-[120px]"><Input type="number" inputMode="decimal" value={r.poolFeePct} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, poolFeePct: Number(e.target.value) }:p))} className="text-right" /></TableCell>
-                  <TableCell className="min-w-[160px]"><Input value={r.notes || ""} onChange={(e)=> setRows(prev=> prev.map((p,i)=> i===idx? { ...p, notes: e.target.value }:p))} placeholder="notes" /></TableCell>
-                  <TableCell className="text-right tabular-nums">{priceMap.get(r.coinId)?.current_price != null ? formatCurrency(priceMap.get(r.coinId)!.current_price) : "-"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{bpd ? bpd.toFixed(6) : "-"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{revenue ? formatCurrency(revenue) : "-"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{power ? formatCurrency(power) : "$0.00"}</TableCell>
-                  <TableCell className="text-right tabular-nums font-semibold">{Number.isFinite(profit) ? formatCurrency(profit) : "-"}</TableCell>
-                  <TableCell className="text-right tabular-nums">{rank}</TableCell>
-                  <TableCell className="text-right"><Button variant="ghost" size="icon" onClick={()=> removeRow(idx)}><Trash2 className="w-4 h-4" /></Button></TableCell>
+                  <TableCell className="text-right min-w-[120px]">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      value={r.blockReward}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx
+                              ? { ...p, blockReward: Number(e.target.value) }
+                              : p,
+                          ),
+                        )
+                      }
+                      className="text-right"
+                    />
+                  </TableCell>
+                  <TableCell className="text-right min-w-[120px]">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      value={r.blockTimeSec}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx
+                              ? { ...p, blockTimeSec: Number(e.target.value) }
+                              : p,
+                          ),
+                        )
+                      }
+                      className="text-right"
+                    />
+                  </TableCell>
+                  <TableCell className="text-right min-w-[120px]">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      value={r.poolFeePct}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx
+                              ? { ...p, poolFeePct: Number(e.target.value) }
+                              : p,
+                          ),
+                        )
+                      }
+                      className="text-right"
+                    />
+                  </TableCell>
+                  <TableCell className="min-w-[160px]">
+                    <Input
+                      value={r.notes || ""}
+                      onChange={(e) =>
+                        setRows((prev) =>
+                          prev.map((p, i) =>
+                            i === idx ? { ...p, notes: e.target.value } : p,
+                          ),
+                        )
+                      }
+                      placeholder="notes"
+                    />
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {priceMap.get(r.coinId)?.current_price != null
+                      ? formatCurrency(priceMap.get(r.coinId)!.current_price)
+                      : "-"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {bpd ? bpd.toFixed(6) : "-"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {revenue ? formatCurrency(revenue) : "-"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {power ? formatCurrency(power) : "$0.00"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums font-semibold">
+                    {Number.isFinite(profit) ? formatCurrency(profit) : "-"}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {rank}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeRow(idx)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               );
             })}
