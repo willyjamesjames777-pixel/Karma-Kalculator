@@ -242,7 +242,7 @@ export default function Index() {
             <p className="text-sm text-muted-foreground mt-1">List new coins, compare your hashrate vs network/pool, and track live prices.</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => exportCsv(coins, marketsById)} className="gap-2">Download CSV</Button>
+            <Button variant="outline" onClick={() => exportXlsx(coins, marketsById)} className="gap-2">Download XLSX</Button>
             <Button variant="secondary" onClick={() => refetch()} disabled={isFetching} className="gap-2">
               <RefreshCw className={cn("w-4 h-4", isFetching && "animate-spin")} /> Refresh
             </Button>
