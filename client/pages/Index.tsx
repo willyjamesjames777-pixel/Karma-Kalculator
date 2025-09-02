@@ -302,11 +302,12 @@ export default function Index() {
 }
 
 function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; market?: CoinMarket; onChange: (c: TrackedCoin) => void; onRemove: () => void }) {
-  const { networkHashrate, pools } = useMining(coin.mpsSlug);
+  const { networkHashrate, pools, error } = useMining(coin.mpsSlug);
+  const effectiveNetHash = coin.netHashOverrideHps ?? networkHashrate;
   const share = useMemo(() => {
-    if (!networkHashrate || !coin.myHashrate || coin.myHashrate <= 0) return undefined;
-    return (coin.myHashrate / networkHashrate) * 100;
-  }, [coin.myHashrate, networkHashrate]);
+    if (!effectiveNetHash || !coin.myHashrate || coin.myHashrate <= 0) return undefined;
+    return (coin.myHashrate / effectiveNetHash) * 100;
+  }, [coin.myHashrate, effectiveNetHash]);
 
   return (
     <TableRow className="hover:bg-muted/30">
@@ -330,7 +331,14 @@ function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; mark
         <div className="tabular-nums">{market?.market_cap ? formatCurrency(market.market_cap) : "-"}</div>
       </TableCell>
       <TableCell className="text-right">
-        <div className="tabular-nums">{formatHashrate(networkHashrate)}</div>
+        {effectiveNetHash ? (
+          <div className="tabular-nums">{formatHashrate(effectiveNetHash)}</div>
+        ) : (
+          <div className="space-y-2">
+            <div className="text-xs text-muted-foreground">No network hashrate found{error ? `: ${error.message}` : ""}.</div>
+            <HashrateEditor valueHps={coin.netHashOverrideHps || 0} onChangeHps={(hps) => onChange({ ...coin, netHashOverrideHps: hps })} />
+          </div>
+        )}
       </TableCell>
       <TableCell className="text-right w-[260px]">
         <HashrateEditor valueHps={coin.myHashrate || 0} onChangeHps={(hps) => onChange({ ...coin, myHashrate: hps })} />
