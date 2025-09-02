@@ -673,14 +673,22 @@ function useCalcState() {
       const raw = localStorage.getItem(CALC_LS);
       if (raw) return JSON.parse(raw) as CalcRow[];
     } catch {}
-    return [
-      { enabled: true, coin: "Bitcoin", coinId: "bitcoin", yourVal: 100, yourUnit: "TH/s", powerWatts: 3000, elecPerKwh: 0.1, netVal: 600, netUnit: "EH/s", blockReward: 3.125, blockTimeSec: 600, poolFeePct: 1.0, notes: "BTC example" },
-      { enabled: true, coin: "Kaspa", coinId: "kaspa", yourVal: 1, yourUnit: "GH/s", powerWatts: 350, elecPerKwh: 0.1, netVal: 140, netUnit: "TH/s", blockReward: 142, blockTimeSec: 1, poolFeePct: 1.0, notes: "KAS example" },
-      { enabled: false, coin: "Ethereum Classic", coinId: "ethereum-classic", yourVal: 1, yourUnit: "GH/s", powerWatts: 800, elecPerKwh: 0.1, netVal: 120, netUnit: "TH/s", blockReward: 2.56, blockTimeSec: 13, poolFeePct: 1.0, notes: "ETC example" },
-      { enabled: false, coin: "Monero", coinId: "monero", yourVal: 10, yourUnit: "kH/s", powerWatts: 200, elecPerKwh: 0.1, netVal: 2, netUnit: "GH/s", blockReward: 0.6, blockTimeSec: 120, poolFeePct: 1.0, notes: "XMR example" },
-    ];
+    return [];
   });
+
   useEffect(() => localStorage.setItem(CALC_LS, JSON.stringify(rows)), [rows]);
+
+  useEffect(() => {
+    function onAdd(e: Event) {
+      const ev = e as CustomEvent<CalcRow>;
+      const detail = ev.detail;
+      if (!detail) return;
+      setRows((prev) => [...prev, detail]);
+    }
+    window.addEventListener("hashtrack-calc-add", onAdd as any);
+    return () => window.removeEventListener("hashtrack-calc-add", onAdd as any);
+  }, []);
+
   return { rows, setRows } as const;
 }
 
