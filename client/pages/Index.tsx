@@ -171,13 +171,13 @@ export default function Index() {
 
   const addCoin = () => {
     const id = normalizeSlug(newCoin.id);
-    const mpsSlug = normalizeSlug(newCoin.mpsSlug);
-    if (!id || !mpsSlug) return;
+    const slugInput = normalizeSlug(newCoin.mpsSlug);
+    if (!id) return;
     const myHashrate = (Number(newCoin.hashValue) || 0) * (UNIT_MULT[newCoin.hashUnit]);
     const netHashOverrideHps = (Number(newCoin.netHashValue) || 0) * (UNIT_MULT[newCoin.netHashUnit]);
     const entry: TrackedCoin = {
       id,
-      mpsSlug,
+      mpsSlug: slugInput || id, // fall back to CoinGecko id if slug empty
       myHashrate,
       netHashOverrideHps: netHashOverrideHps > 0 ? netHashOverrideHps : undefined,
       pool: newCoin.pool || undefined,
