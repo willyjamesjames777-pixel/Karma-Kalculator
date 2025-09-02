@@ -303,10 +303,13 @@ export default function Index() {
 
 function CoinRow({ coin, market, onChange, onRemove }: { coin: TrackedCoin; market?: CoinMarket; onChange: (c: TrackedCoin) => void; onRemove: () => void }) {
   const { networkHashrate, pools, error } = useMining(coin.mpsSlug);
-  const effectiveNetHash = coin.netHashOverrideHps ?? networkHashrate;
+  const effectiveNetHash = coin.netHashOverrideHps && coin.netHashOverrideHps > 0 ? coin.netHashOverrideHps : networkHashrate;
   const share = useMemo(() => {
-    if (!effectiveNetHash || !coin.myHashrate || coin.myHashrate <= 0) return undefined;
-    return (coin.myHashrate / effectiveNetHash) * 100;
+    const denom = effectiveNetHash ?? 0;
+    if (denom <= 0 || !coin.myHashrate || coin.myHashrate <= 0) return undefined;
+    const pct = (coin.myHashrate / denom) * 100;
+    if (!Number.isFinite(pct)) return undefined;
+    return pct;
   }, [coin.myHashrate, effectiveNetHash]);
 
   return (
