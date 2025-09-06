@@ -18,15 +18,10 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Enable corepack for pnpm (to install production deps if needed)
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Copy built artifacts only
+# Copy built artifacts and production node_modules from builder
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-
-# Install only production deps (optional, keeps image small)
-RUN pnpm install --prod --reporter=silent || true
 
 EXPOSE 3000
 
