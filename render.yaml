@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: builder-mystic-lab
+    env: docker
+    plan: starter
+    dockerfilePath: Dockerfile
+    autoDeploy: true
+    healthCheckPath: "/health"
+    ports:
+      - 3000
+    pullRequestPreviews: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Add any additional environment variables required for production here
